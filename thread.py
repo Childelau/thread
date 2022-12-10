@@ -1,14 +1,24 @@
 import threading
+import time
 
-class MyThread(threading.Thread):
-    def __init__(self, thread_name):
-        # 注意：一定要显式的调用父类的初始化函数。
-        super(MyThread, self).__init__(name=thread_name)
+number = 0
+lock = threading.Lock()
 
-    def run(self):
-        print("%s正在运行中......" % self.name)
 
-if __name__ == '__main__':    
-    for i in range(10):
-        MyThread("thread-" + str(i)).start()
+def plus(lk):
+    global number
+    lk.acquire()
+    for _ in range(10000):
+        number += 1
+    print('子线程%s运算结束后， number = %s' % (threading.current_thread().getName(), number))
+    lk.release()
+
+if __name__ == '__main__':
+    for i in range(2):
+        t = threading.Thread(target= plus, args= (lock,))
+        t.start()
+    time.sleep(2)
+    print('主线程结束后，number = ', number)
+
+
 
